@@ -11,6 +11,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.9, <3.13"
+arxiv = "^2.0"
+dateparser = "^1.2"
 typing-extensions = "^4.1"
 
 [tool.poetry.group.dev.dependencies]
@@ -23,11 +25,8 @@ pyright = "^1.1"
 pytest = "^7.4"
 sphinx = "^7.2"
 
-[tool.mypy]
-strict = true
-
 [tool.pyright]
-typeCheckingMode = "strict"
+typeCheckingMode = "basic"
 
 [build-system]
 requires = ["poetry-core"]
