@@ -49,6 +49,14 @@ class Article:
         )
 
 
+def format_date(date_like: str, /) -> str:
+    """Parse and format a date-like string."""
+    if (dt := parse(date_like)) is not None:
+        return dt.strftime(ARXIV_DATE_FORMAT)
+
+    raise ValueError(f"Could not parse {date_like!r}.")
+
+
 def search(
     categories: Sequence[str],
     keywords: Sequence[str] = (),
@@ -87,11 +95,3 @@ def search(
     LOGGER.debug(f"Number of articles found: {len(results)}")
 
     return list(map(Article.from_arxiv, results))
-
-
-def format_date(date_like: str, /) -> str:
-    """Parse and format a date-like string."""
-    if (dt := parse(date_like)) is not None:
-        return dt.strftime(ARXIV_DATE_FORMAT)
-
-    raise ValueError(f"Could not parse {date_like!r}.")
