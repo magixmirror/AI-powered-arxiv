@@ -25,6 +25,9 @@ pyright = "^1.1"
 pytest = "^7.4"
 sphinx = "^7.2"
 
+[tool.mypy]
+disable_error_code = ["import-untyped"]
+
 [tool.pyright]
 typeCheckingMode = "basic"
 
