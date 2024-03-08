@@ -5,6 +5,7 @@ __all__ = ["Article", "search"]
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from logging import getLogger
+from re import compile
 from typing import Optional
 
 
@@ -17,6 +18,8 @@ from typing_extensions import Self
 # constants
 ARXIV_DATE_FORMAT = "%Y%m%d%H%M%S"
 LOGGER = getLogger(__name__)
+SEP_PATTERN = compile(r"\n+\s*|\n*\s+")
+SEP_REPL = " "
 
 
 @dataclass
@@ -45,8 +48,13 @@ class Article:
             title=result.title,
             authors=[author.name for author in result.authors],
             summary=result.summary,
-            url=str(result),
+            url=result.entry_id,
         )
+
+    def __post_init__(self) -> None:
+        """Convert all separators to a single whitespace."""
+        self.title = SEP_PATTERN.sub(SEP_REPL, self.title)
+        self.summary = SEP_PATTERN.sub(SEP_REPL, self.summary)
 
 
 def format_date(date_like: str, /) -> str:
