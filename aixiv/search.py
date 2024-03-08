@@ -70,6 +70,7 @@ def format_date(date_like: str, /) -> str:
 def search(
     categories: Sequence[str],
     keywords: Sequence[str] = (),
+    *,
     start_date: str = "3 days ago at midnight in UTC",
     end_date: str = "2 days ago at midnight in UTC",
     detex: bool = True,
