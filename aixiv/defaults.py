@@ -6,6 +6,7 @@ __all__ = [
     "KEYWORDS",
     "START",
     "END",
+    "FORMATTING",
     "MAXIMUM",
     "ORDER",
     "SORT",
@@ -25,6 +26,7 @@ CATEGORIES = ()
 KEYWORDS = ()
 START = "1 day ago at midnight in UTC"
 END = "0 day ago at midnight in UTC"
+FORMATTING = True
 MAXIMUM = 1000
 ORDER: Literal["descending"] = "descending"
 SORT: Literal["relevance"] = "relevance"
