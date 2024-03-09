@@ -5,7 +5,7 @@
 [![Downloads](https://img.shields.io/pypi/dm/aixiv?label=Downloads&color=cornflowerblue&style=flat-square)](https://pepy.tech/project/aixiv)
 [![Tests](https://img.shields.io/github/actions/workflow/status/astropenguin/aixiv/tests.yaml?label=Tests&style=flat-square)](https://github.com/astropenguin/aixiv/actions)
 
-Translation and summarization of arXiv by generative AI
+AI-powered arXiv translation and summarization
 
 ## Installation
 
