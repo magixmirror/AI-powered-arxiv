@@ -1,4 +1,6 @@
 __all__ = [
+    # constants (article)
+    "N_CONCURRENT",
     # constants (search)
     "CATEGORIES",
     "KEYWORDS",
@@ -12,6 +14,10 @@ __all__ = [
 
 # standard library
 from typing import Literal
+
+
+# constants (article)
+N_CONCURRENT = 4
 
 
 # constants (search)
