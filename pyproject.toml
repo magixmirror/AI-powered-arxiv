@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "aixiv"
 version = "0.0.1"
-description = "Translation and summarization of arXiv by generative AI"
+description = "AI-powered arXiv translation and summarization"
 authors = ["Akio Taniguchi <taniguchi@a.phys.nagoya-u.ac.jp>"]
 documentation = "https://astropenguin.github.io/aixiv/"
 homepage = "https://github.com/astropenguin/aixiv/"
@@ -13,7 +13,6 @@ readme = "README.md"
 python = ">=3.9, <3.13"
 arxiv = "^2.0"
 dateparser = "^1.2"
-pylatexenc = "^2.10"
 typing-extensions = "^4.1"
 
 [tool.poetry.group.dev.dependencies]
