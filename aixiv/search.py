@@ -11,7 +11,7 @@ from typing import Literal
 from arxiv import Client, Search, SortCriterion, SortOrder
 from dateparser import parse
 from .article import Article
-from .defaults import KEYWORDS, CATEGORIES, MAXIMUM, ORDER, SORT, START, END
+from .defaults import KEYWORDS, CATEGORIES, START, END, MAXIMUM, ORDER, SORT
 
 
 # constants
@@ -25,9 +25,9 @@ def search(
     start: str = START,
     end: str = END,
     *,
-    sort: Literal["lastUpdatedDate", "relevance", "submittedDate"] = SORT,
-    order: Literal["ascending", "descending"] = ORDER,
     maximum: int = MAXIMUM,
+    order: Literal["ascending", "descending"] = ORDER,
+    sort: Literal["lastUpdatedDate", "relevance", "submittedDate"] = SORT,
 ) -> list[Article]:
     """Search for articles in arXiv.
 
@@ -36,9 +36,9 @@ def search(
         keywords: Keywords of the search.
         start: Start date (and time) of the search.
         end: End date (and time) of the search.
-        sort: Sort criterion of the search results.
-        order: Sort order of the search results.
         maximum: Maximum number of articles to return.
+        order: Sort order of the search results.
+        sort: Sort criterion of the search results.
 
     Returns:
         Articles found with given conditions.
