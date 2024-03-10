@@ -2,7 +2,7 @@ __all__ = ["amap"]
 
 
 # standard library
-from asyncio import gather, run
+from asyncio import Semaphore, gather, run
 from collections.abc import Callable, Iterable
 from inspect import iscoroutinefunction
 from logging import getLogger
@@ -10,7 +10,6 @@ from typing import TypeVar
 
 
 # dependencies
-from more_itertools import divide, flatten
 from .defaults import N_CONCURRENT
 
 
@@ -44,11 +43,14 @@ def amap(
     if not iscoroutinefunction(func):
         return list(map(func, objects))
 
-    async def inner(objects: Iterable[T]) -> list[T]:
-        return [await func(obj) for obj in objects]
+    sem = Semaphore(n_concurrent)
+
+    async def wrapper(obj):
+        async with sem:
+            return await func(obj)
 
     async def main() -> list[T]:
-        coros = map(inner, divide(n_concurrent, objects))
-        return list(flatten(await gather(*coros)))
+        coros = map(wrapper, objects)
+        return list(await gather(*coros))
 
     return run(main())
