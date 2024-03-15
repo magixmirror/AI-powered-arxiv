@@ -11,6 +11,10 @@ __all__ = [
     "MAXIMUM",
     "ORDER",
     "SORT",
+    # constants (translate)
+    "LANGUAGE",
+    "SUMMARIZE",
+    "TRANSLATOR",
 ]
 
 
@@ -32,3 +36,9 @@ FORMATTING = True
 MAXIMUM = 1000
 ORDER: Literal["descending"] = "descending"
 SORT: Literal["relevance"] = "relevance"
+
+
+# constants (translate)
+LANGUAGE = "auto"
+SUMMARIZE = False
+TRANSLATOR = "aixiv.translate.Gemini"
