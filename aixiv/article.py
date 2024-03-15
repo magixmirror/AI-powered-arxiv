@@ -62,6 +62,10 @@ class Article:
             url=result.entry_id,
         )
 
+    def shorten(self, width: int = 100) -> str:
+        """Return the shortened representation of the article."""
+        return shorten(repr(self), width)
+
 
 def amap(
     func: Union[
@@ -103,21 +107,20 @@ def amap(
         sem = Semaphore(concurrency)
 
         async def runner(article: TArticle) -> TArticle:
-            func_name = func.__qualname__
-            func_args = shorten(str(article), 50)
+            func_call = f"{func.__qualname__}({article.shorten()})"
 
             async with sem:
                 try:
-                    LOGGER.debug(f"{func_name}({func_args}) started.")
+                    LOGGER.debug(f"{func_call} started.")
                     return await wait_for(afunc(article), timeout)
                 except TimeoutError:
                     LOGGER.warning(
-                        f"{func_name}({func_args}) has timed out. "
+                        f"{func_call} has timed out. "
                         "The original article was returned instead."
                     )
                     return article
                 finally:
-                    LOGGER.debug(f"{func_name}({func_args}) finished.")
+                    LOGGER.debug(f"{func_call} finished.")
 
         return list(await gather(*map(runner, articles)))
 
