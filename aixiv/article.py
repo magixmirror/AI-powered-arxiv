@@ -1,19 +1,29 @@
-__all__ = ["Article", "TArticle"]
+__all__ = ["Article", "TArticle", "amap"]
 
 
 # standard library
-from dataclasses import dataclass, field
+from asyncio import (
+    Semaphore,
+    TimeoutError,
+    gather,
+    iscoroutinefunction,
+    run,
+    wait_for,
+)
+from collections.abc import Awaitable, Callable, Iterable
+from dataclasses import dataclass, field, replace
 from logging import getLogger
-from typing import Optional, TypeVar
+from textwrap import shorten
+from typing import Optional, TypeVar, Union, cast
 
 
 # dependencies
 from arxiv import Result
 from typing_extensions import Self
+from .defaults import CONCURRENCY, TIMEOUT
 
 
 # type hints
-T = TypeVar("T")
 TArticle = TypeVar("TArticle", bound="Article")
 
 
@@ -51,3 +61,64 @@ class Article:
             summary=result.summary,
             url=result.entry_id,
         )
+
+
+def amap(
+    func: Union[
+        Callable[[TArticle], TArticle],
+        Callable[[TArticle], Awaitable[TArticle]],
+    ],
+    articles: Iterable[TArticle],
+    /,
+    *,
+    concurrency: int = CONCURRENCY,
+    timeout: float = TIMEOUT,
+) -> list[TArticle]:
+    """Article-to-article map function.
+
+    Args:
+        func: Function or coroutine function for mapping.
+        articles: Articles to be mapped.
+        concurrency: Number of concurrent executions.
+            Only used when ``func`` is a coroutine function.
+        timeout: Timeout per article in seconds.
+            Only used when ``func`` is a coroutine function.
+
+    Returns:
+        List of mapped articles by ``func`` with each
+        original article stored in the ``origin`` attribute.
+        If timeout occurs, the original article is returned.
+
+    """
+
+    async def afunc(article: TArticle, /) -> TArticle:
+        if iscoroutinefunction(func):
+            new = await func(article)
+        else:
+            new = func(article)
+
+        return replace(cast(TArticle, new), origin=article)
+
+    async def main(articles: Iterable[TArticle], /) -> list[TArticle]:
+        sem = Semaphore(concurrency)
+
+        async def runner(article: TArticle) -> TArticle:
+            func_name = func.__qualname__
+            func_args = shorten(str(article), 50)
+
+            async with sem:
+                try:
+                    LOGGER.debug(f"{func_name}({func_args}) started.")
+                    return await wait_for(afunc(article), timeout)
+                except TimeoutError:
+                    LOGGER.warning(
+                        f"{func_name}({func_args}) has timed out. "
+                        "The original article was returned instead."
+                    )
+                    return article
+                finally:
+                    LOGGER.debug(f"{func_name}({func_args}) finished.")
+
+        return list(await gather(*map(runner, articles)))
+
+    return run(main(articles))
