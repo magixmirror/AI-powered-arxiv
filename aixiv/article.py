@@ -81,12 +81,13 @@ def amap(
         articles: Articles to be mapped.
         concurrency: Number of concurrent executions.
             Only used when ``func`` is a coroutine function.
-        timeout: Execution timeout in seconds.
+        timeout: Timeout per article in seconds.
             Only used when ``func`` is a coroutine function.
 
     Returns:
         List of mapped articles by ``func`` with each
         original article stored in the ``origin`` attribute.
+        If timeout occurs, the original article is returned.
 
     """
     sem = Semaphore(concurrency)
@@ -100,17 +101,21 @@ def amap(
         return replace(new, origin=article)  # type: ignore
 
     async def runner(article: TArticle) -> TArticle:
+        func_name = func.__qualname__
+        func_args = shorten(str(article), 50)
+
         async with sem:
             try:
+                LOGGER.debug(f"{func_name}({func_args}) started.")
                 return await wait_for(afunc(article), timeout)
             except TimeoutError:
-                func_name = func.__qualname__
-                func_arg = shorten(str(article), 50)
                 LOGGER.warning(
-                    f"{func_name}({func_arg}) has timed out. "
+                    f"{func_name}({func_args}) has timed out. "
                     "The original article was returned instead."
                 )
                 return article
+            finally:
+                LOGGER.debug(f"{func_name}({func_args}) finished.")
 
     async def main() -> list[TArticle]:
         return list(await gather(*map(runner, articles)))
