@@ -1,6 +1,7 @@
 __all__ = [
     # constants (article)
-    "N_CONCURRENT",
+    "CONCURRENCY",
+    "TIMEOUT",
     # constants (search)
     "CATEGORIES",
     "KEYWORDS",
@@ -18,7 +19,8 @@ from typing import Literal
 
 
 # constants (article)
-N_CONCURRENT = 4
+CONCURRENCY = 4
+TIMEOUT = 10
 
 
 # constants (search)

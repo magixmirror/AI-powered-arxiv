@@ -14,7 +14,7 @@ from typing import Literal
 from arxiv import Client, Search, SortCriterion, SortOrder
 from dateparser import parse
 from pylatexenc.latex2text import LatexNodes2Text
-from .article import Article, TArticle
+from .article import Article, TArticle, amap
 from .defaults import (
     KEYWORDS,
     CATEGORIES,
@@ -25,7 +25,6 @@ from .defaults import (
     ORDER,
     SORT,
 )
-from .mapping import amap
 
 
 # constants
