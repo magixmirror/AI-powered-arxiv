@@ -14,7 +14,7 @@ from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass, field, replace
 from logging import getLogger
 from textwrap import shorten
-from typing import Optional, TypeVar, Union
+from typing import Optional, TypeVar, Union, cast
 
 
 # dependencies
@@ -90,34 +90,35 @@ def amap(
         If timeout occurs, the original article is returned.
 
     """
-    sem = Semaphore(concurrency)
 
-    async def afunc(article: TArticle) -> TArticle:
+    async def afunc(article: TArticle, /) -> TArticle:
         if iscoroutinefunction(func):
             new = await func(article)
         else:
             new = func(article)
 
-        return replace(new, origin=article)  # type: ignore
+        return replace(cast(TArticle, new), origin=article)
 
-    async def runner(article: TArticle) -> TArticle:
-        func_name = func.__qualname__
-        func_args = shorten(str(article), 50)
+    async def main(articles: Iterable[TArticle], /) -> list[TArticle]:
+        sem = Semaphore(concurrency)
 
-        async with sem:
-            try:
-                LOGGER.debug(f"{func_name}({func_args}) started.")
-                return await wait_for(afunc(article), timeout)
-            except TimeoutError:
-                LOGGER.warning(
-                    f"{func_name}({func_args}) has timed out. "
-                    "The original article was returned instead."
-                )
-                return article
-            finally:
-                LOGGER.debug(f"{func_name}({func_args}) finished.")
+        async def runner(article: TArticle) -> TArticle:
+            func_name = func.__qualname__
+            func_args = shorten(str(article), 50)
 
-    async def main() -> list[TArticle]:
+            async with sem:
+                try:
+                    LOGGER.debug(f"{func_name}({func_args}) started.")
+                    return await wait_for(afunc(article), timeout)
+                except TimeoutError:
+                    LOGGER.warning(
+                        f"{func_name}({func_args}) has timed out. "
+                        "The original article was returned instead."
+                    )
+                    return article
+                finally:
+                    LOGGER.debug(f"{func_name}({func_args}) finished.")
+
         return list(await gather(*map(runner, articles)))
 
-    return run(main())
+    return run(main(articles))
