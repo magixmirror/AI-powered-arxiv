@@ -16,6 +16,14 @@ dateparser = "^1.2"
 pylatexenc = "^2.10"
 typing-extensions = "^4.1"
 
+[tool.poetry.dependencies.deepl]
+version = "^1.16"
+extras = ["all", "deepl"]
+
+[tool.poetry.dependencies.google-generativeai]
+version = "^0.3"
+extras = ["all", "gemini"]
+
 [tool.poetry.group.dev.dependencies]
 black = "^24.2"
 ipython = "^8.18"
