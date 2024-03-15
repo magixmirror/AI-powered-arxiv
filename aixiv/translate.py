@@ -1,4 +1,4 @@
-__all__ = ["AsyncTranslator", "Translator", "translate"]
+__all__ = ["Translator", "translate"]
 
 
 # standard library
@@ -24,42 +24,13 @@ PATH_SEP = "."
 PATH_SPLIT = 1
 
 
-@dataclass
-class Translator(ABC):
-    """Abstract base class for translators."""
-
-    language: str
-    summarize: bool
-
-    def __post_init__(self) -> None:
-        """Auto-set translation language from the locale."""
-        if self.language == LANG_AUTO:
-            locale = Locale.default()
-            self.language = str(locale.get_language_name(LANG_EN))
-
-    @abstractmethod
-    def __call__(self, article: TArticle, /) -> TArticle:
-        """Translate (and summarize) an article."""
-        pass
-
-
-@dataclass
-class AsyncTranslator(Translator, ABC):
-    """Abstract base class for async-translators."""
-
-    @abstractmethod
-    async def __call__(self, article: TArticle, /) -> TArticle:
-        """Translate (and summarize) an article."""
-        pass
-
-
 def translate(
     articles: Iterable[TArticle],
     /,
     *,
     language: str = LANGUAGE,
     summarize: bool = SUMMARIZE,
-    translator: Union[type[Translator], str] = TRANSLATOR,
+    translator: Union[type["Translator"], str] = TRANSLATOR,
     concurrency: int = CONCURRENCY,
     timeout: float = TIMEOUT,
     **options: Any,
@@ -94,4 +65,23 @@ def translate(
         concurrency=concurrency,
         timeout=timeout,
     )
+
+
+@dataclass
+class Translator(ABC):
+    """Abstract base class for translators."""
+
+    language: str
+    summarize: bool
+
+    def __post_init__(self) -> None:
+        """Auto-set translation language from the locale."""
+        if self.language == LANG_AUTO:
+            locale = Locale.default()
+            self.language = str(locale.get_language_name(LANG_EN))
+
+    @abstractmethod
+    def __call__(self, article: TArticle, /) -> TArticle:
+        """Translate (and summarize) an article."""
+        pass
 
