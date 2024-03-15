@@ -12,16 +12,17 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.9, <3.13"
 arxiv = "^2.0"
+babel = "^2.14"
 dateparser = "^1.2"
 pylatexenc = "^2.10"
 typing-extensions = "^4.1"
 
 [tool.poetry.dependencies.deepl]
-version = "^1.16"
+version = "^1.17"
 extras = ["all", "deepl"]
 
 [tool.poetry.dependencies.google-generativeai]
-version = "^0.3"
+version = "^0.4"
 extras = ["all", "gemini"]
 
 [tool.poetry.group.dev.dependencies]
