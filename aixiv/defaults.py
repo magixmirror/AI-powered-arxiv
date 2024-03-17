@@ -39,6 +39,7 @@ SORT: Literal["relevance"] = "relevance"
 
 
 # constants (translate)
+TRANSLATOR = "aixiv.translators.Gemini"
+API_KEY = "$GEMINI_API_KEY"
 LANGUAGE = "auto"
 SUMMARIZE = False
-TRANSLATOR = "aixiv.translate.Gemini"
