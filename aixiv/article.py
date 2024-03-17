@@ -69,7 +69,9 @@ class Article:
         if not format_spec:
             return super().__format__(format_spec)
         else:
-            return Repr(maxother=int(format_spec)).repr(self)
+            repr = Repr()
+            repr.maxother = int(format_spec)
+            return repr.repr(self)
 
 
 def amap(
