@@ -60,7 +60,7 @@ SORT: Literal["relevance"] = "relevance"
 TRANSLATOR = "aixiv.translators.Gemini"
 """Translator class or the path for it."""
 
-API_KEY = "$GEMINI_API_KEY"
+API_KEY = "$GOOGLE_API_KEY"
 """API key or the environment variable for it."""
 
 LANGUAGE = "auto"
