@@ -2,8 +2,7 @@ __all__ = ["DeepL"]
 
 
 # standard library
-from dataclasses import replace
-from functools import partial
+from dataclasses import dataclass, replace
 from logging import getLogger
 from typing import cast
 
@@ -17,6 +16,7 @@ from ..translate import Translator
 LOGGER = getLogger(__name__)
 
 
+@dataclass
 class DeepL(Translator):
     """Translator by DeepL neural network.
 
@@ -27,25 +27,30 @@ class DeepL(Translator):
 
     """
 
+    def __post_init__(self) -> None:
+        if self.summarize:
+            LOGGER.warning("Summarization is not supported.")
+
     def __call__(self, article: TArticle, /) -> TArticle:
         """Translate (and summarize) an article."""
-        # lazy import
+        # create model
         from deepl import TextResult, Translator
 
         model = Translator(self.api_key)
-        run = partial(model.translate_text, target_lang=self.language)
 
-        if self.summarize:
-            LOGGER.warning("Summarization is not supported by DeepL.")
+        # run translations
+        def run(prompt: str) -> str:
+            response = model.translate_text(
+                text=prompt,
+                target_lang=self.language,
+            )
+            return cast(TextResult, response).text
 
         try:
-            resp_title = cast(TextResult, run(article.title))
-            resp_summary = cast(TextResult, run(article.summary))
-
             return replace(
                 article,
-                title=resp_title.text,
-                summary=resp_summary.text,
+                title=run(article.title),
+                summary=run(article.summary),
             )
         except Exception as error:
             LOGGER.warning(error)
