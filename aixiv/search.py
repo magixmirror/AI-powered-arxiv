@@ -1,4 +1,4 @@
-__all__ = ["Article", "format", "search"]
+__all__ = ["format", "search"]
 
 
 # standard library
@@ -6,7 +6,6 @@ from collections.abc import Iterable, Sequence
 from dataclasses import replace
 from logging import getLogger
 from re import compile
-from textwrap import shorten
 from typing import Literal
 
 
@@ -46,12 +45,19 @@ def format(articles: Iterable[TArticle], /) -> list[TArticle]:
 
     """
 
-    def inner(article: TArticle) -> TArticle:
-        title = convert_latex(format_sep(article.title))
-        summary = convert_latex(format_sep(article.summary))
-        return replace(article, title=title, summary=summary)
+    def runner(article: TArticle, /) -> TArticle:
+        try:
+            title = convert_latex(format_sep(article.title))
+            summary = convert_latex(format_sep(article.summary))
+            return replace(article, title=title, summary=summary)
+        except Exception:
+            LOGGER.warning(
+                f"Failed to format {article:100}. "
+                "The original article was returned instead."
+            )
+            return article
 
-    return list(amap(inner, articles))
+    return list(amap(runner, articles))
 
 
 def search(
@@ -91,7 +97,7 @@ def search(
         sub = " OR ".join(f'abs:"{kwd}"' for kwd in keywords)
         query += f" AND ({sub})"
 
-    client = Client()
+    client = Client(delay_seconds=5, num_retries=5)
     search = Search(
         query,
         sort_by=SortCriterion(sort),
@@ -108,14 +114,7 @@ def search(
 
 def convert_latex(string: str, /) -> str:
     """Convert all LaTeX commands in a string to Unicode."""
-    try:
-        return ARXIV_LATEX_CONVERTER.latex_to_text(string)
-    except Exception:
-        LOGGER.warning(
-            f"Failed to format {shorten(string, 50)!r}. "
-            "The original string was returned instead."
-        )
-        return string
+    return ARXIV_LATEX_CONVERTER.latex_to_text(string)
 
 
 def format_date(string: str, /) -> str:

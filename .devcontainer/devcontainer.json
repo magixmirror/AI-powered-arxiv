@@ -2,6 +2,7 @@
     "name": "aixiv",
     "image": "python:3.12",
     "runArgs": [
+        "--env-file=.env",
         "--name=aixiv"
     ],
     "containerEnv": {

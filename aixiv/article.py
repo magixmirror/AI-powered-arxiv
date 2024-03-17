@@ -1,20 +1,13 @@
-__all__ = ["Article", "TArticle", "amap"]
+__all__ = ["Article", "amap"]
 
 
 # standard library
-from asyncio import (
-    Semaphore,
-    TimeoutError,
-    gather,
-    iscoroutinefunction,
-    run,
-    wait_for,
-)
+from asyncio import Semaphore, TimeoutError, gather, run, wait_for
 from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass, field, replace
 from logging import getLogger
-from textwrap import shorten
-from typing import Optional, TypeVar, Union, cast
+from reprlib import Repr
+from typing import Optional, TypeVar, Union
 
 
 # dependencies
@@ -25,6 +18,7 @@ from .defaults import CONCURRENCY, TIMEOUT
 
 # type hints
 TArticle = TypeVar("TArticle", bound="Article")
+Finally = Union[TArticle, Awaitable[TArticle]]
 
 
 # constants
@@ -33,7 +27,16 @@ LOGGER = getLogger(__name__)
 
 @dataclass(frozen=True)
 class Article:
-    """Article information."""
+    """Article information.
+
+    Args:
+        title: Title of the article.
+        authors: Authors of the article.
+        summary: Summary of the article.
+        url: URL of the article.
+        origin: Original article (if any).
+
+    """
 
     title: str
     """Title of the article."""
@@ -48,12 +51,11 @@ class Article:
     """URL of the article."""
 
     origin: Optional[Self] = field(default=None, repr=False)
-    """Original article (if it exists)."""
+    """Original article (if any)."""
 
     @classmethod
     def from_arxiv(cls, result: Result, /) -> Self:
         """Create an article from an arXiv query result."""
-        LOGGER.debug(f"Article created from: {result!r}")
 
         return cls(
             title=result.title,
@@ -62,12 +64,18 @@ class Article:
             url=result.entry_id,
         )
 
+    def __format__(self, format_spec: str, /) -> str:
+        """Support shortened representation of the article."""
+        if not format_spec:
+            return super().__format__(format_spec)
+        else:
+            repr = Repr()
+            repr.maxother = int(format_spec)
+            return repr.repr(self)
+
 
 def amap(
-    func: Union[
-        Callable[[TArticle], TArticle],
-        Callable[[TArticle], Awaitable[TArticle]],
-    ],
+    func: Callable[[TArticle], Finally[TArticle]],
     articles: Iterable[TArticle],
     /,
     *,
@@ -92,33 +100,28 @@ def amap(
     """
 
     async def afunc(article: TArticle, /) -> TArticle:
-        if iscoroutinefunction(func):
-            new = await func(article)
+        if isinstance(result := func(article), Awaitable):
+            return replace(await result, origin=article)
         else:
-            new = func(article)
+            return replace(result, origin=article)
 
-        return replace(cast(TArticle, new), origin=article)
-
-    async def main(articles: Iterable[TArticle], /) -> list[TArticle]:
+    async def main() -> list[TArticle]:
         sem = Semaphore(concurrency)
 
-        async def runner(article: TArticle) -> TArticle:
-            func_name = func.__qualname__
-            func_args = shorten(str(article), 50)
-
+        async def runner(article: TArticle, /) -> TArticle:
             async with sem:
                 try:
-                    LOGGER.debug(f"{func_name}({func_args}) started.")
+                    LOGGER.debug(f"Start processing {article:100}.")
                     return await wait_for(afunc(article), timeout)
                 except TimeoutError:
                     LOGGER.warning(
-                        f"{func_name}({func_args}) has timed out. "
+                        f"Timeout in processing {article:100}."
                         "The original article was returned instead."
                     )
                     return article
                 finally:
-                    LOGGER.debug(f"{func_name}({func_args}) finished.")
+                    LOGGER.debug(f"Finish processing {article:100}.")
 
         return list(await gather(*map(runner, articles)))
 
-    return run(main(articles))
+    return run(main())
