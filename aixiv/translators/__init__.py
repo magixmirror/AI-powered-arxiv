@@ -1,6 +1,6 @@
-__all__ = ["DeepL", "Gemini"]
+__all__ = ["DeepL", "Google"]
 
 
 # translators
 from .deepl import DeepL
-from .gemini import Gemini
+from .google import Google

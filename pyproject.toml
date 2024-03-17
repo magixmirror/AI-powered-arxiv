@@ -23,7 +23,7 @@ extras = ["all", "deepl"]
 
 [tool.poetry.dependencies.google-generativeai]
 version = "^0.4"
-extras = ["all", "gemini"]
+extras = ["all", "google"]
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.2"

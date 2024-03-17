@@ -1,4 +1,4 @@
-__all__ = ["Gemini"]
+__all__ = ["Google"]
 
 
 # standard library
@@ -19,8 +19,8 @@ PROMPT_TRANSLATE = "Strictly translate the following texts in {language}."
 PROMPT_SUMMARIZE = "Summarize the following texts in {language}."
 
 
-class Gemini(Translator):
-    """Google/Gemini translator.
+class Google(Translator):
+    """Translator by Google generative models.
 
     Args:
         api_key: API key of the translator.

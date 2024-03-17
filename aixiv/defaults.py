@@ -57,7 +57,7 @@ SORT: Literal["relevance"] = "relevance"
 """Sort criterion of the search results."""
 
 # constants (translate)
-TRANSLATOR = "aixiv.translators.Gemini"
+TRANSLATOR = "aixiv.translators.Google"
 """Translator class or the path for it."""
 
 API_KEY = "$GOOGLE_API_KEY"
