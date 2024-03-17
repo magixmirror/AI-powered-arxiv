@@ -29,6 +29,7 @@ TranslatorLike = Union[type["Translator"], str]
 
 
 # constants
+EMPTY_API_KEY = ""
 ENV_PATTERN = compile(r"^\$\{{0,1}(.+?)\}{0,1}$")
 LANG_AUTO = "auto"
 LOGGER = getLogger(__name__)
@@ -108,7 +109,7 @@ def translate(
 
     # parse API key
     if match := ENV_PATTERN.search(api_key):
-        api_key = environ[match[1]]
+        api_key = environ.get(match[1], EMPTY_API_KEY)
 
     # parse language
     if language == LANG_AUTO:
