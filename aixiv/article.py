@@ -1,4 +1,4 @@
-__all__ = ["Article", "TArticle", "amap"]
+__all__ = ["Article", "amap"]
 
 
 # standard library

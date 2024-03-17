@@ -1,4 +1,4 @@
-__all__ = ["Article", "format", "search"]
+__all__ = ["format", "search"]
 
 
 # standard library
