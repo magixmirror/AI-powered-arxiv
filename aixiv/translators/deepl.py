@@ -11,7 +11,6 @@ from typing import cast
 # dependencies
 from ..article import TArticle
 from ..translate import Translator
-from deepl import Translator as RT
 
 
 # constants
@@ -19,7 +18,7 @@ LOGGER = getLogger(__name__)
 
 
 class DeepL(Translator):
-    """DeepL/DeepL translator.
+    """Translator by DeepL neural network.
 
     Args:
         api_key: API key of the translator.
