@@ -7,14 +7,16 @@ from logging import getLogger
 
 
 # dependencies
+from babel import Locale
 from ..article import TArticle
 from ..translate import Translator
 
 
 # constants
+LANG_EN = "en"
 LOGGER = getLogger(__name__)
-PROMPT_TRANSLATE = "Strictly translate the following texts in {gemini.language}."
-PROMPT_SUMMARIZE = "Summarize the following texts in {gemini.language}."
+PROMPT_TRANSLATE = "Strictly translate the following texts in {language}."
+PROMPT_SUMMARIZE = "Summarize the following texts in {language}."
 
 
 class Gemini(Translator):
@@ -40,10 +42,13 @@ class Gemini(Translator):
         model = genai.GenerativeModel(self.model)
         run = model.generate_content_async
 
+        # convert language code to language name in English
+        language = Locale.parse(self.language).get_language_name(LANG_EN)
+
         if self.summarize:
-            prompt = PROMPT_SUMMARIZE.format(gemini=self)
+            prompt = PROMPT_SUMMARIZE.format(language=language)
         else:
-            prompt = PROMPT_TRANSLATE.format(gemini=self)
+            prompt = PROMPT_TRANSLATE.format(language=language)
 
         try:
             resp_title = await run(f"{prompt}\n{article.title}")

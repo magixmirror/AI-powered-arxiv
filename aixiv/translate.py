@@ -31,7 +31,6 @@ TranslatorLike = Union[type["Translator"], str]
 # constants
 ENV_PATTERN = compile(r"^\$\{{0,1}(.+?)\}{0,1}$")
 LANG_AUTO = "auto"
-LANG_EN = "en"
 LOGGER = getLogger(__name__)
 PATH_SEP = "."
 PATH_SPLIT = 1
@@ -113,11 +112,9 @@ def translate(
 
     # parse language
     if language == LANG_AUTO:
-        locale = Locale.default()
+        language = Locale.default().language
     else:
-        locale = Locale.parse(language)
-
-    language = str(locale.get_language_name(LANG_EN))
+        language = Locale.parse(language).language
 
     return amap(
         Translator_(api_key, language, summarize, **options),
