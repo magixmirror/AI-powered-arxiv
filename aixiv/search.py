@@ -97,7 +97,7 @@ def search(
         sub = " OR ".join(f'abs:"{kwd}"' for kwd in keywords)
         query += f" AND ({sub})"
 
-    client = Client()
+    client = Client(delay_seconds=5, num_retries=5)
     search = Search(
         query,
         sort_by=SortCriterion(sort),
