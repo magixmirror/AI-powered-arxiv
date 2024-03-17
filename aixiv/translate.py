@@ -49,7 +49,7 @@ class Translator(ABC):
     """
 
     api_key: str = field(repr=False)
-    """API key or the environment variable for it."""
+    """API key of the translator."""
 
     language: str
     """Language code of the translated articles."""
