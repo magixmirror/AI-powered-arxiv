@@ -39,10 +39,17 @@ PATH_SPLIT = 1
 
 @dataclass
 class Translator(ABC):
-    """Abstract base class for translators."""
+    """Abstract base class for translators.
+
+    Args:
+        api_key: API key or the environment variable for it.
+        language: Language code of the translated articles.
+        summarize: Whether to summarize the articles.
+
+    """
 
     api_key: str = field(repr=False)
-    """API key"""
+    """API key or the environment variable for it."""
 
     language: str
     """Language code of the translated articles."""

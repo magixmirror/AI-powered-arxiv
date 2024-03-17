@@ -27,7 +27,16 @@ LOGGER = getLogger(__name__)
 
 @dataclass(frozen=True)
 class Article:
-    """Article information."""
+    """Article information.
+
+    Args:
+        title: Title of the article.
+        authors: Authors of the article.
+        summary: Summary of the article.
+        url: URL of the article.
+        origin: Original article (if any).
+
+    """
 
     title: str
     """Title of the article."""
@@ -42,12 +51,11 @@ class Article:
     """URL of the article."""
 
     origin: Optional[Self] = field(default=None, repr=False)
-    """Original article (if it exists)."""
+    """Original article (if any)."""
 
     @classmethod
     def from_arxiv(cls, result: Result, /) -> Self:
         """Create an article from an arXiv query result."""
-        LOGGER.debug(f"Article created from: {result!r}")
 
         return cls(
             title=result.title,
