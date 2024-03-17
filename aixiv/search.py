@@ -52,7 +52,7 @@ def format(articles: Iterable[TArticle], /) -> list[TArticle]:
             return replace(article, title=title, summary=summary)
         except Exception:
             LOGGER.warning(
-                f"Failed to format {article.shorten()}. "
+                f"Failed to format {article:100}. "
                 "The original article was returned instead."
             )
             return article

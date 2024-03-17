@@ -13,7 +13,7 @@ from asyncio import (
 from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass, field, replace
 from logging import getLogger
-from textwrap import shorten
+from reprlib import Repr
 from typing import Optional, TypeVar, Union, cast
 
 
@@ -62,9 +62,12 @@ class Article:
             url=result.entry_id,
         )
 
-    def shorten(self, width: int = 100) -> str:
-        """Return the shortened representation of the article."""
-        return shorten(repr(self), width)
+    def __format__(self, format_spec: str, /) -> str:
+        """Support shortened representation of the article."""
+        if not format_spec:
+            return super().__format__(format_spec)
+        else:
+            return Repr(maxother=int(format_spec)).repr(self)
 
 
 def amap(
@@ -106,21 +109,19 @@ def amap(
     async def main(articles: Iterable[TArticle], /) -> list[TArticle]:
         sem = Semaphore(concurrency)
 
-        async def runner(article: TArticle) -> TArticle:
-            func_call = f"{func.__qualname__}({article.shorten()})"
-
+        async def runner(article: TArticle, /) -> TArticle:
             async with sem:
                 try:
-                    LOGGER.debug(f"{func_call} started.")
+                    LOGGER.debug(f"Start processing {article:100}.")
                     return await wait_for(afunc(article), timeout)
                 except TimeoutError:
                     LOGGER.warning(
-                        f"{func_call} has timed out. "
+                        f"Timeout in processing {article:100}."
                         "The original article was returned instead."
                     )
                     return article
                 finally:
-                    LOGGER.debug(f"{func_call} finished.")
+                    LOGGER.debug(f"Finish processing {article:100}.")
 
         return list(await gather(*map(runner, articles)))
 
