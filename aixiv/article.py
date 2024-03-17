@@ -2,19 +2,12 @@ __all__ = ["Article", "TArticle", "amap"]
 
 
 # standard library
-from asyncio import (
-    Semaphore,
-    TimeoutError,
-    gather,
-    iscoroutinefunction,
-    run,
-    wait_for,
-)
+from asyncio import Semaphore, TimeoutError, gather, run, wait_for
 from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass, field, replace
 from logging import getLogger
 from reprlib import Repr
-from typing import Optional, TypeVar, Union, cast
+from typing import Optional, TypeVar, Union
 
 
 # dependencies
@@ -71,10 +64,7 @@ class Article:
 
 
 def amap(
-    func: Union[
-        Callable[[TArticle], TArticle],
-        Callable[[TArticle], Awaitable[TArticle]],
-    ],
+    func: Callable[[TArticle], Union[TArticle, Awaitable[TArticle]]],
     articles: Iterable[TArticle],
     /,
     *,
@@ -99,14 +89,12 @@ def amap(
     """
 
     async def afunc(article: TArticle, /) -> TArticle:
-        if iscoroutinefunction(func):
-            new = await func(article)
+        if isinstance(result := func(article), Awaitable):
+            return replace(await result, origin=article)
         else:
-            new = func(article)
+            return replace(result, origin=article)
 
-        return replace(cast(TArticle, new), origin=article)
-
-    async def main(articles: Iterable[TArticle], /) -> list[TArticle]:
+    async def main() -> list[TArticle]:
         sem = Semaphore(concurrency)
 
         async def runner(article: TArticle, /) -> TArticle:
@@ -125,4 +113,4 @@ def amap(
 
         return list(await gather(*map(runner, articles)))
 
-    return run(main(articles))
+    return run(main())
