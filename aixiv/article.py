@@ -18,6 +18,7 @@ from .defaults import CONCURRENCY, TIMEOUT
 
 # type hints
 TArticle = TypeVar("TArticle", bound="Article")
+Finally = Union[TArticle, Awaitable[TArticle]]
 
 
 # constants
@@ -64,7 +65,7 @@ class Article:
 
 
 def amap(
-    func: Callable[[TArticle], Union[TArticle, Awaitable[TArticle]]],
+    func: Callable[[TArticle], Finally[TArticle]],
     articles: Iterable[TArticle],
     /,
     *,

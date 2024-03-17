@@ -12,7 +12,7 @@ from typing import Any, Union
 
 # dependencies
 from babel import Locale
-from .article import TArticle, amap
+from .article import Finally, TArticle, amap
 from .defaults import CONCURRENCY, LANGUAGE, SUMMARIZE, TIMEOUT, TRANSLATOR
 
 
@@ -72,16 +72,19 @@ class Translator(ABC):
     """Abstract base class for translators."""
 
     language: str
+    """Language of the translated articles."""
+
     summarize: bool
+    """Whether to summarize the articles."""
 
     def __post_init__(self) -> None:
-        """Auto-set translation language from the locale."""
+        """Auto-set language from the locale information."""
         if self.language == LANG_AUTO:
             locale = Locale.default()
             self.language = str(locale.get_language_name(LANG_EN))
 
     @abstractmethod
-    def __call__(self, article: TArticle, /) -> TArticle:
+    def __call__(self, article: TArticle, /) -> Finally[TArticle]:
         """Translate (and summarize) an article."""
         pass
 
